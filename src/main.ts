@@ -21,7 +21,7 @@ class Game implements System
 	 
 		const letra: string = this.GetLetra();
 	 
-		this.Verificador( letra )
+		this.Verificador( letra );
 	};
 
 	private GetLetra(): string
@@ -55,7 +55,7 @@ class Game implements System
 		console.log("Limpa o jogo");
 		console.log("cria nova palavra");
 		console.log("Espera main ser chamada denovo");
-	}
+	};
 };
 
 const main = new Game;
