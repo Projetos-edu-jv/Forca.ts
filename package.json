@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "start": "tsc src/main.ts && sass src/main.scss src/main.css"
+  }
+}
