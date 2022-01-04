@@ -1,0 +1,51 @@
+body {
+    height: 100vh;
+    background: rgb(53, 53, 53);
+    color: white;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .forca {
+        .base {
+            width: 50px;
+            height: 20px;
+            background-color: white;
+            transform: rotate(180deg);
+        }
+
+        .pilar1 {
+            width: 10px;
+            height: 250px;
+            background-color: white;
+            transform: translate(20px);
+        }
+
+        .pilar2 {
+            width: 180px;
+            height: 10px;
+            background-color: white;
+            transform: translate(20px) rotate(180deg);
+        }
+
+        .gancho {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            transform: translate(160px, 20px);
+
+            .boneco {
+                position: absolute;
+                width: 60px;
+                height: 60px;
+                background-color: white;
+                border-radius: 50%;
+                top: 18px;
+                right: -20px;
+            }
+        }
+    }
+}

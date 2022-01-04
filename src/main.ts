@@ -1,63 +1,124 @@
-// console.log('Olá Mundo');
-
-interface System { readonly palavra: string };
-
-class Game implements System
+class Game
 {
-	readonly palavra: string;
+	static letrasHtml: HTMLElement;
+	static palavrasHtml: HTMLElement;
+	static mostraDicaHtml: HTMLElement;
+
+	static palavra: string;
+	static palavraMascarada: any;
+	static errosPermitidos: number;
  
-	constructor() { this.palavra = this.GetPalavra() };
+	//Inicializa variavéis críticas para o jogo
+	constructor()
+	{
+		Game.letrasHtml = document.querySelector('.letras');
+		Game.palavrasHtml = document.querySelector('.palavra');
+		Game.mostraDicaHtml = document.querySelector('.dica');
+
+		Game.palavra;
+		Game.palavraMascarada;
+		Game.errosPermitidos;
+	};
  
+	//Aloca recursos para o jogo
 	Init(): void
 	{
-		console.log("Jogo iniciado!");
-	 
-		this.Loop(); //Faz loop do jogo
+		//Palavras 
+		const Array_palavras: Array<string> = ["Casa", "Carro", "Banana", "Bunda"];
+
+		//Dica
+		const dica: Array<string> = [
+			'Onde vc mora',
+			'Oq capota e voa!',
+			'Fruta que tem duplo sentido!',
+			'onde vc n erra o buraco!'
+		];
+
+		//Letras
+		const letras:Array<string> = [
+			"a", "b", "c", "d", "e", "f",
+			"g", "h", "i", "j", "k", "l",
+			"m", "n", "o", "p", "q", "r",
+			"s", "u", "v", "w", "x", "y", "z"
+		];
+
+		//Escolha das dicas
+		const escolheDica = Math.floor(Math.random() * dica.length);
+
+		Game.palavra = Array_palavras[escolheDica]; //Palavra sorteada
+		Game.palavraMascarada = Game.palavra.replace(/[a-z]/gi, '_'); //Mascara
+		Game.errosPermitidos = 6; //Erros aceitos
+
+		//Chama a lógica do jogo
+		Game.Engine( false, NaN, dica, letras, escolheDica );
+	};
+
+	//Responsável pela lógica mais "pesada" do jogo
+	static Engine ( 
+		jogoIniciado: boolean,
+		hit?: number,
+		dica?: Array<string>,
+		letras?: Array<string>,
+		escolheDica?: number
+	): void
+	{
+		if( !jogoIniciado )
+		{
+			const letrasRendenizadas: Array<string> = [];
+
+			letras.map((letra) => {
+				return letrasRendenizadas.push(`<button onclick="Game.Verificador('${letra}')" >${letra}</button>`);
+			});
+
+			Game.letrasHtml.innerHTML = letrasRendenizadas.join('');
+			Game.palavrasHtml.innerText = Game.palavraMascarada;
+			Game.mostraDicaHtml.innerHTML = `<p>${dica[escolheDica]}</p>`;
+		}
+		else if( !hit )
+		{
+			Game.palavrasHtml.innerHTML = Game.palavraMascarada;
+		}
+		else
+		{
+			Game.errosPermitidos -= hit;
+			console.log( Game.errosPermitidos );
+		};
+
+		if( Game.errosPermitidos < 1 ) Game.EndGame( false );
+
+		if (jogoIniciado) {
+			const reg: RegExp = /["_"]/gi;
+			if ( !reg.test(Game.palavraMascarada) ) Game.EndGame( true );
+		};
 	};
  
-	private Loop(): void
+	static Verificador( letra: string ): void
 	{
-		console.log("Coisas que vão acontecer nesse jogo!");
-	 
-		const letra: string = this.GetLetra();
-	 
-		this.Verificador( letra );
+		let seguro: Array< never | string > = [];
+
+		const palavraMinusculo = Game.palavra.toLowerCase();
+		for (let index = 0; index <= Game.palavra.length; index++)
+		{
+			if(palavraMinusculo[index] == letra){
+				this.palavraMascarada = this.palavraMascarada.split('');
+				this.palavraMascarada[index] = letra;
+				this.palavraMascarada = this.palavraMascarada.join('');
+				seguro.push( letra );
+			}
+		}
+
+		if( seguro.length < 1 )  Game.Engine( true, 1 );
+		else Game.Engine( true );
 	};
-
-	private GetLetra(): string
+	
+	static EndGame( status: boolean ): void
 	{
-		console.log("Recebe Letra");
-	 
-		return "";
-	};
+		const newGame = new Game;
 
-	GetPalavra(): string
-	{
-		console.log("Recebe Palavra");
-
-		return "";
-	};
-
-	private Verificador( letra: string ): void
-	{
-		console.log("Verifica letra com palavra");
-	 
-		letra === this.palavra
-			? console.log("Venceu!")
-			: console.log("Perdeu!");
-
-		this.EndGame();
-	};
-
-	private EndGame(): void
-	{
-		console.log("Encerra loop");
-		console.log("Limpa o jogo");
-		console.log("cria nova palavra");
-		console.log("Espera main ser chamada denovo");
+		newGame.Init();
 	};
 };
 
-const main = new Game;
+const main = new Game; // Instância
 
 main.Init();

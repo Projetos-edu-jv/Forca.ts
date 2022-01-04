@@ -1,5 +1,8 @@
 {
   "scripts": {
-    "start": "tsc src/main.ts && sass src/main.scss src/main.css"
+    "start": "concurrently 'tsc -w src/main.ts' 'sass -w src/main.scss src/main.css' "
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
   }
 }
