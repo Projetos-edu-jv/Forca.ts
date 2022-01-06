@@ -1,94 +1,70 @@
-var Game = /** @class */ (function () {
-    //Inicializa variavéis críticas para o jogo
-    function Game() {
-        Game.letrasHtml = document.querySelector('.letras');
-        Game.palavrasHtml = document.querySelector('.palavra');
-        Game.mostraDicaHtml = document.querySelector('.dica');
-        Game.palavra;
-        Game.palavraMascarada;
-        Game.errosPermitidos;
+var displayLetras = document.querySelector('.letras');
+var displayDica = document.querySelector('.dica');
+var displayPalavra = document.querySelector('.palavra');
+var palavras = ["Casa", "Carro", "Banana", "Bunda"];
+var renderLetras = [];
+var letras = [
+    "a", "b", "c", "d", "e", "f",
+    "g", "h", "i", "j", "k", "l",
+    "m", "n", "o", "p", "q", "r",
+    "s", "u", "v", "w", "x", "y", "z"
+];
+var dica = [
+    'Onde vc mora',
+    'Oq capota e voa!',
+    'Fruta que tem duplo sentido!',
+    'onde vc n erra o buraco!'
+];
+var reg = /["_"]/gi;
+var escolheDica = Math.floor(Math.random() * dica.length);
+var palavra = palavras[escolheDica];
+var mascara = palavra.replace(/[a-z]/gi, '_ ');
+var errosPermitidos = 6;
+letras.map(function (letra) { renderLetras.push("<button onclick=\"Verifica('".concat(letra, "')\">").concat(letra, "</button>")); });
+displayLetras.innerHTML = renderLetras.join('');
+displayDica.innerHTML = "<p>".concat(dica[escolheDica], "</p>");
+displayPalavra.innerHTML = mascara;
+var Verifica = function (letra) {
+    var seguro = [];
+    var palavraMinusculo = palavra.toLowerCase();
+    for (var index = 0; index <= palavra.length; index++) {
+        if (palavraMinusculo[index] == letra) {
+            mascara = mascara.split(' ');
+            mascara[index] = letra;
+            mascara = mascara.join(' ');
+            seguro.push(letra);
+        }
+        ;
     }
     ;
-    //Aloca recursos para o jogo
-    Game.prototype.Init = function () {
-        //Palavras 
-        var Array_palavras = ["Casa", "Carro", "Banana", "Bunda"];
-        //Dica
-        var dica = [
-            'Onde vc mora',
-            'Oq capota e voa!',
-            'Fruta que tem duplo sentido!',
-            'onde vc n erra o buraco!'
-        ];
-        //Letras
-        var letras = [
-            "a", "b", "c", "d", "e", "f",
-            "g", "h", "i", "j", "k", "l",
-            "m", "n", "o", "p", "q", "r",
-            "s", "u", "v", "w", "x", "y", "z"
-        ];
-        //Escolha das dicas
-        var escolheDica = Math.floor(Math.random() * dica.length);
-        Game.palavra = Array_palavras[escolheDica]; //Palavra sorteada
-        Game.palavraMascarada = Game.palavra.replace(/[a-z]/gi, '_'); //Mascara
-        Game.errosPermitidos = 6; //Erros aceitos
-        //Chama a lógica do jogo
-        Game.Engine(false, NaN, dica, letras, escolheDica);
-    };
+    (seguro.length < 1) ? Renderiza(false) : Renderiza(true);
+};
+var Renderiza = function (hit) {
+    var res = mascara.match(reg);
+    switch (hit) {
+        case true:
+            displayPalavra.innerHTML = mascara;
+            break;
+        case false:
+            errosPermitidos--;
+            render_boy("".concat(errosPermitidos));
+            break;
+    }
     ;
-    //Responsável pela lógica mais "pesada" do jogo
-    Game.Engine = function (jogoIniciado, hit, dica, letras, escolheDica) {
-        if (!jogoIniciado) {
-            var letrasRendenizadas_1 = [];
-            letras.map(function (letra) {
-                return letrasRendenizadas_1.push("<button onclick=\"Game.Verificador('".concat(letra, "')\" >").concat(letra, "</button>"));
-            });
-            Game.letrasHtml.innerHTML = letrasRendenizadas_1.join('');
-            Game.palavrasHtml.innerText = Game.palavraMascarada;
-            Game.mostraDicaHtml.innerHTML = "<p>".concat(dica[escolheDica], "</p>");
-        }
-        else if (!hit) {
-            Game.palavrasHtml.innerHTML = Game.palavraMascarada;
-        }
-        else {
-            Game.errosPermitidos -= hit;
-            console.log(Game.errosPermitidos);
-        }
-        ;
-        if (Game.errosPermitidos < 1)
-            Game.EndGame(false);
-        if (jogoIniciado) {
-            var reg = /["_"]/gi;
-            if (!reg.test(Game.palavraMascarada))
-                Game.EndGame(true);
-        }
-        ;
-    };
+    if (errosPermitidos < 1) {
+        EndGame(false);
+    }
+    else if (!(res instanceof Array)) //Verifica se o res ainda é um Array
+     {
+        EndGame(true);
+    }
     ;
-    Game.Verificador = function (letra) {
-        var seguro = [];
-        var palavraMinusculo = Game.palavra.toLowerCase();
-        for (var index = 0; index <= Game.palavra.length; index++) {
-            if (palavraMinusculo[index] == letra) {
-                this.palavraMascarada = this.palavraMascarada.split('');
-                this.palavraMascarada[index] = letra;
-                this.palavraMascarada = this.palavraMascarada.join('');
-                seguro.push(letra);
-            }
-        }
-        if (seguro.length < 1)
-            Game.Engine(true, 1);
-        else
-            Game.Engine(true);
-    };
-    ;
-    Game.EndGame = function (status) {
-        var newGame = new Game;
-        newGame.Init();
-    };
-    ;
-    return Game;
-}());
-;
-var main = new Game; // Instância
-main.Init();
+};
+var render_boy = function (id) {
+    var render = document.querySelector("#_".concat(id));
+    render.classList.remove('off');
+};
+var EndGame = function (status) {
+    (status) ? alert("Você Venceu!") : alert("Você Perdeu!");
+    window.location.reload();
+};

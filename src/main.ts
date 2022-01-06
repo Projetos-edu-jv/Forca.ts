@@ -1,124 +1,90 @@
-class Game
+const displayLetras: HTMLDivElement = document.querySelector('.letras');
+const displayDica: HTMLDivElement = document.querySelector('.dica');
+const displayPalavra: HTMLDivElement = document.querySelector('.palavra');
+
+const palavras: Array<string> = ["Casa", "Carro", "Banana", "Bunda"];
+const renderLetras: any = [];
+const letras: Array<string> = [
+	"a", "b", "c", "d", "e", "f",
+	"g", "h", "i", "j", "k", "l",
+	"m", "n", "o", "p", "q", "r",
+	"s", "u", "v", "w", "x", "y", "z"
+];
+
+const dica: Array<string> = [
+	'Onde vc mora',
+	'Oq capota e voa!',
+	'Fruta que tem duplo sentido!',
+	'onde vc n erra o buraco!'
+];
+
+const reg: RegExp = /["_"]/gi;
+const escolheDica = Math.floor(Math.random() * dica.length);
+const palavra: string = palavras[escolheDica];
+
+let mascara: any = palavra.replace(/[a-z]/gi, '_ ');
+let errosPermitidos: number = 6;
+
+letras.map((letra) => { renderLetras.push(`<button onclick="Verifica('${letra}')">${letra}</button>`)});
+
+displayLetras.innerHTML = renderLetras.join('');
+displayDica.innerHTML = `<p>${dica[escolheDica]}</p>`;
+displayPalavra.innerHTML = mascara;
+
+const Verifica = ( letra: string ): void =>
 {
-	static letrasHtml: HTMLElement;
-	static palavrasHtml: HTMLElement;
-	static mostraDicaHtml: HTMLElement;
+	const seguro: Array< never | string > = [];
+	const palavraMinusculo = palavra.toLowerCase();
 
-	static palavra: string;
-	static palavraMascarada: any;
-	static errosPermitidos: number;
- 
-	//Inicializa variavéis críticas para o jogo
-	constructor()
+	for (let index = 0; index <= palavra.length; index++)
 	{
-		Game.letrasHtml = document.querySelector('.letras');
-		Game.palavrasHtml = document.querySelector('.palavra');
-		Game.mostraDicaHtml = document.querySelector('.dica');
-
-		Game.palavra;
-		Game.palavraMascarada;
-		Game.errosPermitidos;
-	};
- 
-	//Aloca recursos para o jogo
-	Init(): void
-	{
-		//Palavras 
-		const Array_palavras: Array<string> = ["Casa", "Carro", "Banana", "Bunda"];
-
-		//Dica
-		const dica: Array<string> = [
-			'Onde vc mora',
-			'Oq capota e voa!',
-			'Fruta que tem duplo sentido!',
-			'onde vc n erra o buraco!'
-		];
-
-		//Letras
-		const letras:Array<string> = [
-			"a", "b", "c", "d", "e", "f",
-			"g", "h", "i", "j", "k", "l",
-			"m", "n", "o", "p", "q", "r",
-			"s", "u", "v", "w", "x", "y", "z"
-		];
-
-		//Escolha das dicas
-		const escolheDica = Math.floor(Math.random() * dica.length);
-
-		Game.palavra = Array_palavras[escolheDica]; //Palavra sorteada
-		Game.palavraMascarada = Game.palavra.replace(/[a-z]/gi, '_'); //Mascara
-		Game.errosPermitidos = 6; //Erros aceitos
-
-		//Chama a lógica do jogo
-		Game.Engine( false, NaN, dica, letras, escolheDica );
-	};
-
-	//Responsável pela lógica mais "pesada" do jogo
-	static Engine ( 
-		jogoIniciado: boolean,
-		hit?: number,
-		dica?: Array<string>,
-		letras?: Array<string>,
-		escolheDica?: number
-	): void
-	{
-		if( !jogoIniciado )
+		if(palavraMinusculo[index] == letra)
 		{
-			const letrasRendenizadas: Array<string> = [];
+			mascara = mascara.split(' ')
+			mascara[index] = letra;
+			mascara = mascara.join(' ');
 
-			letras.map((letra) => {
-				return letrasRendenizadas.push(`<button onclick="Game.Verificador('${letra}')" >${letra}</button>`);
-			});
-
-			Game.letrasHtml.innerHTML = letrasRendenizadas.join('');
-			Game.palavrasHtml.innerText = Game.palavraMascarada;
-			Game.mostraDicaHtml.innerHTML = `<p>${dica[escolheDica]}</p>`;
-		}
-		else if( !hit )
-		{
-			Game.palavrasHtml.innerHTML = Game.palavraMascarada;
-		}
-		else
-		{
-			Game.errosPermitidos -= hit;
-			console.log( Game.errosPermitidos );
-		};
-
-		if( Game.errosPermitidos < 1 ) Game.EndGame( false );
-
-		if (jogoIniciado) {
-			const reg: RegExp = /["_"]/gi;
-			if ( !reg.test(Game.palavraMascarada) ) Game.EndGame( true );
+			seguro.push( letra );
 		};
 	};
- 
-	static Verificador( letra: string ): void
+
+	( seguro.length < 1 ) ? Renderiza( false ) : Renderiza( true );
+};
+
+const Renderiza = ( hit: boolean ): void =>
+{
+	const res = mascara.match( reg );
+
+	switch( hit )
 	{
-		let seguro: Array< never | string > = [];
+		case true: displayPalavra.innerHTML = mascara;  break;
 
-		const palavraMinusculo = Game.palavra.toLowerCase();
-		for (let index = 0; index <= Game.palavra.length; index++)
-		{
-			if(palavraMinusculo[index] == letra){
-				this.palavraMascarada = this.palavraMascarada.split('');
-				this.palavraMascarada[index] = letra;
-				this.palavraMascarada = this.palavraMascarada.join('');
-				seguro.push( letra );
-			}
-		}
-
-		if( seguro.length < 1 )  Game.Engine( true, 1 );
-		else Game.Engine( true );
+		case false:
+			errosPermitidos--;
+			render_boy( `${errosPermitidos}` );
+		break;
 	};
-	
-	static EndGame( status: boolean ): void
-	{
-		const newGame = new Game;
 
-		newGame.Init();
+	if( errosPermitidos < 1 )
+	{
+		EndGame( false )
+	}
+	else if( !(res instanceof Array ) ) //Verifica se o res ainda é um Array
+	{
+		EndGame( true );
 	};
 };
 
-const main = new Game; // Instância
+const render_boy = (id: string): void =>
+{
+	const render: HTMLElement = document.querySelector(`#_${id}`)
 
-main.Init();
+	render.classList.remove('off');
+};
+
+const EndGame = ( status: boolean ): void =>
+{
+	(status) ? alert("Você Venceu!") :alert("Você Perdeu!");
+
+	window.location.reload();
+};
